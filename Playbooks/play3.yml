@@ -1,0 +1,14 @@
+---
+- hosts: ws
+  become: yes
+  gather_facts: yes
+  ignore_errors: 1
+
+  tasks:
+     - name: package to install
+       yum:
+        name: ["wget", "vim"]
+        state: present
+       
+        
+        

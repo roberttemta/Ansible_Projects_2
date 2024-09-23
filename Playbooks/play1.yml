@@ -1,0 +1,53 @@
+---
+- hosts: all
+  become: yes
+  gather_facts: yes
+
+  tasks: 
+    - name: Install nginx
+      apt: 
+        name: nginx
+        state: present
+        update_cache: yes
+      when: ansible_os_family=="Debian"
+
+    - name: Install Nginx on RedHat family
+      yum:
+        name: httpd
+        state: present
+        update_cache: yes
+      when: ansible_os_family=="RedHat"
+    
+    - name: Start httpd Daemon
+      service:
+        name: httpd
+        state: started
+        enabled: yes
+      when: ansible_os_family=="RedHat"
+     
+
+    - name: Create user
+      user:
+        name: Eden
+        comment: "Eden TEMTA"
+        shell: /bin/bash
+
+    - name: Create group
+      group:
+        name: CloudTeam
+        state: present
+
+    - name: Create index file
+      file:
+        path: /var/www/html/index.html
+        state: touch
+        register: file_output
+      
+    - name: Read data
+      debug:
+        var: file_output.diff.before.path
+
+    - name: Copy content to index
+      copy: 
+        dest: file_output.diff.before.path
+        content: '<h1>This is created using ansible</h1>'
